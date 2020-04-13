@@ -1,0 +1,4034 @@
+{
+	"info": {
+		"_postman_id": "5a8d2d59-84b5-42d1-994d-ae121c1587b7",
+		"name": "SignNow API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "00 Invite to Sign (with fields)",
+			"item": [
+				{
+					"name": "Authentication",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "9cb3cdfb-1a89-4531-9c5b-7c3bb7714997",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"token\", jsonData.access_token);",
+									"",
+									"pm.test(\"Token is presented in response\", function(){ ",
+									"    pm.expect(pm.response.text()).to.include(\"access_token\"); ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic {{basic}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "{{user}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "text"
+								},
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/oauth2/token",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"oauth2",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload document",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c458ae77-a1fc-4dc8-87ec-11599401614a",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"document_id\", jsonData.id);",
+									"",
+									"pm.test(\"Document is uploaded\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"id\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "multipart/form-data"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/document/",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add 2 fillable fields",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "0e8ad7e5-fc54-4aad-9d56-ed6e644adcdb",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Status success\", function() {",
+									"    pm.expect(pm.response.text()).to.include(pm.environment.get(\"document_id\"));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"client_timestamp\": 1527859375,\n  \"fields\": [\n    {\n      \"page_number\": 0,\n      \"type\": \"text\",\n      \"name\": \"FieldName\",\n      \"role\": \"Signer 1\",\n      \"required\": true,\n      \"height\": 40,\n      \"width\": 50,\n      \"x\": 217,\n      \"y\": 32\n    },\n    {\n      \"page_number\": 0,\n      \"type\": \"text\",\n      \"name\": \"FieldName2\",\n      \"role\": \"Signer 2\",\n      \"required\": true,\n      \"height\": 40,\n      \"width\": 50,\n      \"x\": 260,\n      \"y\": 60\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{url}}/document/{{document_id}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"{{document_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get role ids",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "0d59bfc0-b553-45fe-b069-4d7890554965",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"var role_1_index;",
+									"var role_2_index;",
+									"for(var i = 0; i<jsonData.roles.length; ++i){",
+									"    var signerName = jsonData.roles[i].name;",
+									"    if(signerName === 'Signer 1'){",
+									"        role_1_index = i;",
+									"    }",
+									"}",
+									"for(var i = 0; i<jsonData.roles.length; ++i){",
+									"    var signerName = jsonData.roles[i].name;",
+									"    if(signerName === 'Signer 2'){",
+									"        role_2_index = i;",
+									"    }",
+									"}",
+									"",
+									"postman.setEnvironmentVariable(\"role_id_1\", jsonData.roles[role_1_index].unique_id);",
+									"postman.setEnvironmentVariable(\"role_id_2\", jsonData.roles[role_2_index].unique_id);",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/document/{{document_id}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"{{document_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Field Invite",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "2836d9d3-0969-4cba-b2ce-c78d519b0f50",
+								"exec": [
+									"pm.test(\"Status success\", function() {",
+									"    pm.expect(pm.response.text()).to.include(\"success\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n   \"document_id\":\"{{document_id}}\",\n   \"to\":[\n      {\n         \"email\":\"{{signer1}}\",\n         \"role\":\"Signer 1\",\n         \"role_id\":\"{{role_id_1}}\",\n         \"order\":1,\n         \"reassign\":\"1\",\n         \"decline_by_signature\":\"1\",\n         \"reminder\": 12,\n         \"expiration_days\":30,\n         \"subject\":\"Field invite Signer1\",\n         \"message\":\"Field invite Signer1\"\n      },\n      {\n         \"email\":\"{{signer2}}\",\n         \"role\":\"Signer 2\",\n         \"role_id\":\"{{role_id_2}}\",\n         \"order\":2,\n         \"reassign\":\"1\",\n         \"decline_by_signature\":\"1\",\n         \"reminder\": 12,\n         \"expiration_days\":30,\n         \"subject\":\"Field invite Signer1\",\n         \"message\":\"Field invite Signer1\"\n      }\n   ],\n   \"from\":\"{{user}}\",\n   \"email\":\"disabled\",\n   \"cc\":[\n   ],\n   \"subject\":\"Field invite with after_reminder\",\n   \"message\":\"New message!\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}/document/{{document_id}}/invite",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"{{document_id}}",
+								"invite"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get field and field invite id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b4930fc1-68d3-41c5-9f7e-097d2102dde9",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"var role_1_index;",
+									"var role_2_index;",
+									"",
+									"for(var i = 0; i<jsonData.field_invites.length; ++i){",
+									"    var signerName = jsonData.field_invites[i].role;",
+									"    if(signerName === 'Signer 1'){",
+									"        role_1_index = i;",
+									"    }",
+									"    if(signerName === 'Signer 2'){",
+									"        role_2_index = i;",
+									"    }",
+									"}",
+									"postman.setEnvironmentVariable(\"field_invite_id_1\", jsonData.field_invites[role_1_index].id);",
+									"postman.setEnvironmentVariable(\"field_invite_id_2\", jsonData.field_invites[role_2_index].id);",
+									"",
+									"for(var i = 0; i<jsonData.fields.length; ++i){",
+									"    var signerName = jsonData.fields[i].role;",
+									"    if(signerName === 'Signer 1'){",
+									"        role_1_index = i;",
+									"    }",
+									"     if(signerName === 'Signer 2'){",
+									"        role_2_index = i;",
+									"    }",
+									"}",
+									"postman.setEnvironmentVariable(\"field_id_1\", jsonData.fields[role_1_index].field_id);",
+									"postman.setEnvironmentVariable(\"field_id_2\", jsonData.fields[role_2_index].field_id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/document/{{document_id}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"{{document_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Resend field invite",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n}"
+						},
+						"url": {
+							"raw": "{{url}}/fieldinvite/{{field_id_1}}/resend",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"fieldinvite",
+								"{{field_id_1}}",
+								"resend"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reassign signer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "9db20527-5cb1-44ef-a5b9-218e5063932f",
+								"exec": [
+									"pm.test(\"Success status, 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.text()).to.include(\"success\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"role_id\": \"{{role_id_1}}\",\n    \"email\": \"{{user3}}\",\n    \"cc\": [],\n    \"reassign\": 1\n}"
+						},
+						"url": {
+							"raw": "{{url}}/document/{{document_id}}/invite/reassign/{{field_invite_id_1}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"{{document_id}}",
+								"invite",
+								"reassign",
+								"{{field_invite_id_1}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change password",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fieldinvite_id\": \"{{field_invite_id_2}}\",\n  \"authentication_type\": \"password\",\n  \"new_password\": \"29\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}/document/{{document_id}}/invite/changepassword",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"{{document_id}}",
+								"invite",
+								"changepassword"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cancel field invite",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "197e8c49-91bd-4d60-900f-27339486b75e",
+								"exec": [
+									"pm.test(\"Status success\", function() {",
+									"    pm.expect(pm.response.text()).to.include(\"success\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{url}}/field_invite/{{field_invite_id_2}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"field_invite",
+								"{{field_invite_id_2}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "01 Free form Invite (without fields)",
+			"item": [
+				{
+					"name": "1. Authorization",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "9cb3cdfb-1a89-4531-9c5b-7c3bb7714997",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"token\", jsonData.access_token);",
+									"pm.test(\"access_token is presented\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"access_token\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic {{basic}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "{{user}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "text"
+								},
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/oauth2/token",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"oauth2",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2. Upload document",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "6054ceaa-cd1d-4bc1-a623-a05eac7649d9",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"document_id\", jsonData.id);",
+									"pm.test(\"Status code is 200, id is present\", function () {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.text()).to.include(\"id\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "multipart/form-data"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/document",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3. Send a free form invite",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "2836d9d3-0969-4cba-b2ce-c78d519b0f50",
+								"exec": [
+									"pm.test(\"Status success\", function() {",
+									"    pm.expect(pm.response.text()).to.include(\"success\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"document_id\": \"{{document_id}}\",\n    \"to\": \"{{user1}}\",\n    \"from\": \"{{user}}\",\n    \"cc\": [\n        \"{{user2}}\"\n    ],\n    \"subject\": \"Subj {{$timestamp}}\",\n    \"message\": \"Message {{$timestamp}}\",\n    \"on_complete\": \"document_and_attachments\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}/document/{{document_id}}/invite",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"{{document_id}}",
+								"invite"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "02 Signing Link",
+			"item": [
+				{
+					"name": "1. Authorization",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "9cb3cdfb-1a89-4531-9c5b-7c3bb7714997",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"token\", jsonData.access_token);",
+									"pm.test(\"Token is presented in response\", function() {",
+									"    pm.expect(pm.response.text()).to.include(\"access_token\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic {{basic}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "{{user}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "text"
+								},
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/oauth2/token",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"oauth2",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.Upload document",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c72f90fe-8f5e-4b4c-874f-904a99ad1c92",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"document_id\", jsonData.id);",
+									"pm.test(\"Status code is 200\", function() {",
+									"    pm.expect(pm.response.to.have.status(200));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "multipart/form-data"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/document",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3. Make template from document",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "9cb3cdfb-1a89-4531-9c5b-7c3bb7714997",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"pm.environment.set(\"template_id\", jsonData.id);",
+									"pm.test(\"Successful POST request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200,201,202]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"document_id\": \"{{document_id}}\",\n\t\"document_name\": \"document\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}/template",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"template"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4.Delete document",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "7273b59a-b690-4d32-950e-797f8cc94cd2",
+								"exec": [
+									"pm.test(\"Status success\", function() {",
+									"    pm.expect(pm.response.text()).to.include(\"success\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\"unique_id\": \"{{document_id}}\"}\n]"
+						},
+						"url": {
+							"raw": "{{url}}/documents",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"documents"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5. Add field signature",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "791be517-1903-4e91-91cf-d12c5ccd5e1b",
+								"exec": [
+									"pm.test(\"Status success\", function() {",
+									"    pm.expect(pm.response.text()).to.include(pm.environment.get(\"template_id\"));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n   \"fields\":[\n      {\n         \"x\":358,\n         \"y\":171,\n         \"width\":177,\n         \"height\":50,\n         \"type\":\"signature\",\n         \"page_number\":0,\n         \"required\":true,\n         \"role\":\"Signer 1\",\n         \"custom_defined_option\":false,\n         \"name\":\"signature1\"\n      }\n   ],\n   \"elements\":[\n\n   ],\n   \"client_timestamp\":{{$timestamp}}\n}"
+						},
+						"url": {
+							"raw": "{{url}}/document/{{template_id}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"{{template_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "6.Get role id's for template",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "0d59bfc0-b553-45fe-b069-4d7890554965",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"var role_1_index, role_2_index;",
+									"for(var i = 0; i<jsonData.roles.length; ++i){",
+									"    var signerName = jsonData.roles[i].name;",
+									"    if(signerName === 'Signer 1'){",
+									"        role_1_index = i;",
+									"    }",
+									"}",
+									"postman.setEnvironmentVariable(\"role_id_1\", jsonData.roles[role_1_index].unique_id);",
+									"pm.test(\"Status code is 200, template is correct\", function () {",
+									"pm.response.to.have.status(200);",
+									"pm.expect(pm.response.text()).to.include(pm.environment.get(\"template_id\"));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/document/{{template_id}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"{{template_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "7.Update routing details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "078700a5-ba2e-464f-8f11-53c8d01b4526",
+								"exec": [
+									"pm.test(\"Status success\", function() {",
+									"    pm.expect(pm.response.text()).to.include(pm.environment.get(\"template_id\"));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n   \"template_data\":[\n      {\n         \"default_email\":\"\",\n         \"inviter_role\":false,\n         \"name\":\"Signer 1\",\n         \"role_id\":\"{{role_id_1}}\",\n         \"signing_order\":1\n      }\n   ],\n   \"cc\":[],\n   \"cc_step\":[]\n}"
+						},
+						"url": {
+							"raw": "{{url}}/document/{{template_id}}/template/routing/detail",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"{{template_id}}",
+								"template",
+								"routing",
+								"detail"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "8.Make document from template",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "d4d1f04f-65bc-4924-9b77-1bf804c26cb7",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"pm.environment.set(\"document_id\", jsonData.id);",
+									"pm.test(\"Status code is 200\", function() {",
+									"    pm.expect(pm.response.to.have.status(200));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"client_timestamp\": {{$timestamp}},\n\t\"document_name\": \"Document\",\n\t\"template_id\": \"{{template_id}}\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}/template/{{template_id}}/copy",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"template",
+								"{{template_id}}",
+								"copy"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "9.Get organization id for signing link",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "9db20527-5cb1-44ef-a5b9-218e5063932f",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"org_id\", jsonData.organization.id);",
+									"pm.test(\"Status code is 200\", function() {",
+									"    pm.expect(pm.response.to.have.status(200));",
+									"    pm.expect(pm.response.text()).to.include(pm.environment.get(\"org_id\"));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/user",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "10.Get signing link",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "2b239786-1ff9-497d-ab12-7910a12dd25e",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"signing_link\", jsonData.url_no_signup);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"document_id\": \"{{document_id}}\",\n  \"organization_id\": \"{{org_id}}\",\n  \"firstname\": \"Roki\",\n  \"lastname\": \"Doki\",\n  \"redirect_uri\": \"https://google.com\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}/link",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"link"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "11. Deactivate signing link",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{prod_url}}/v2/application/signing-links",
+							"host": [
+								"{{prod_url}}"
+							],
+							"path": [
+								"v2",
+								"application",
+								"signing-links"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "4384049e-0147-408b-8094-9cabd9cbf798",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "a6941c00-98e5-4054-9acc-e0dc66f2d637",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "03 Bulk Invite",
+			"item": [
+				{
+					"name": "1. Authentication",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "9cb3cdfb-1a89-4531-9c5b-7c3bb7714997",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"token\", jsonData.access_token);",
+									"",
+									"pm.test(\"Token is presented in response\", function() {",
+									"    pm.expect(pm.response.text()).to.include(\"access_token\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic {{basic}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "{{user}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "text"
+								},
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/oauth2/token",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"oauth2",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2. Upload Document",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c72f90fe-8f5e-4b4c-874f-904a99ad1c92",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"document_id\", jsonData.id);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "multipart/form-data"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/document",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3. Make Template",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "17a80ab2-29f2-44ec-93c5-23df453384b1",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"template_id\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"document_name\": \"bulkInvite\",\n    \"document_id\": \"{{document_id}}\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}/template/",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"template",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4. Add 1 signature field",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "791be517-1903-4e91-91cf-d12c5ccd5e1b",
+								"exec": [
+									"pm.test(\"Status:200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n   \"fields\":[\n      {\n         \"x\":358,\n         \"y\":171,\n         \"width\":177,\n         \"height\":50,\n         \"type\":\"signature\",\n         \"page_number\":0,\n         \"required\":true,\n         \"role\":\"Signer 1\",\n         \"custom_defined_option\":false,\n         \"name\":\"signature1\"\n      }\n   ],\n   \"elements\":[],\n   \"client_timestamp\":{{$timestamp}}\n}"
+						},
+						"url": {
+							"raw": "{{url}}/document/{{template_id}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"{{template_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5. Send bulk invite for one signer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a6b06e23-5859-4362-bad9-cb431f7b3611",
+								"exec": [
+									"pm.test(\"response is ok\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Message contain \\\"job queued\\\"\", function() {",
+									"    pm.expect(pm.response.text()).to.include(\"job queued\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "client_timestamp",
+									"value": "{{$timestamp}}",
+									"type": "text"
+								},
+								{
+									"key": "document_name",
+									"value": "1 signer",
+									"type": "text"
+								},
+								{
+									"key": "folder_id",
+									"value": "5e59dfb292d9655122a0f6087b26ea9b1af3f752",
+									"type": "text"
+								},
+								{
+									"key": "subject",
+									"value": "Bulk Invite subject 1 signer",
+									"type": "text"
+								},
+								{
+									"key": "email_message",
+									"value": "Bulk invite message 1 signer",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/template/{{template_id}}/bulkinvite",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"template",
+								"{{template_id}}",
+								"bulkinvite"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "6. Add 3 signature fields",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "791be517-1903-4e91-91cf-d12c5ccd5e1b",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n   \"fields\":[\n      {\n         \"x\":358,\n         \"y\":171,\n         \"width\":177,\n         \"height\":50,\n         \"type\":\"signature\",\n         \"page_number\":0,\n         \"required\":true,\n         \"role\":\"Signer 1\",\n         \"custom_defined_option\":false,\n         \"name\":\"Signer 1\"\n      },\n      {\n         \"x\":358,\n         \"y\":287,\n         \"width\":177,\n         \"height\":50,\n         \"type\":\"signature\",\n         \"page_number\":0,\n         \"required\":true,\n         \"role\":\"Signer 2\",\n         \"custom_defined_option\":false,\n         \"name\":\"signature2\"\n      },\n       {\n         \"x\":358,\n         \"y\":250,\n         \"width\":177,\n         \"height\":50,\n         \"type\":\"signature\",\n         \"page_number\":0,\n         \"required\":true,\n         \"role\":\"Signer 3\",\n         \"custom_defined_option\":false,\n         \"name\":\"signature3\"\n      }\n   ],\n   \"elements\":[\n\n   ],\n   \"client_timestamp\":{{$timestamp}}\n}"
+						},
+						"url": {
+							"raw": "{{url}}/document/{{template_id}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"{{template_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "7. Send bulk invite for three signers",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a6b06e23-5859-4362-bad9-cb431f7b3611",
+								"exec": [
+									"pm.test(\"Status: 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Message contain \\\"job queued\\\"\", function() {",
+									"    pm.expect(pm.response.text()).to.include(\"job queued\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "client_timestamp",
+									"value": "{{$timestamp}}",
+									"type": "text"
+								},
+								{
+									"key": "document_name",
+									"value": "3 signers",
+									"type": "text"
+								},
+								{
+									"key": "folder_id",
+									"value": "5e59dfb292d9655122a0f6087b26ea9b1af3f752",
+									"type": "text"
+								},
+								{
+									"key": "subject",
+									"value": "Bulk Invite subject 3 signers",
+									"type": "text"
+								},
+								{
+									"key": "email_message",
+									"value": "Bulk invite message 3 signers",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/template/{{template_id}}/bulkinvite",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"template",
+								"{{template_id}}",
+								"bulkinvite"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "8. Delete Documents",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b319a3a7-44b4-4c8f-b437-14540d709877",
+								"exec": [
+									"pm.test(\"Status success\", function() {",
+									"    pm.expect(pm.response.text()).to.include(\"success\");",
+									"});",
+									"",
+									"pm.environment.unset(\"document_id\");",
+									"pm.environment.unset(\"template_id\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n\t{\"unique_id\": \"{{document_id}}\"},\n\t{\"unique_id\": \"{{template_id}}\"}\n]"
+						},
+						"url": {
+							"raw": "{{url}}/documents",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"documents"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "14686bbf-a4c2-49f2-99f9-b61190c8f13c",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "45bf0a9b-3f9f-4eb4-a630-37d4d29c59ba",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "04 Document Gorup Invite",
+			"item": [
+				{
+					"name": "Authentication",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "9cb3cdfb-1a89-4531-9c5b-7c3bb7714997",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"token\", jsonData.access_token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic {{basic}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "{{user}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "text"
+								},
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/oauth2/token",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"oauth2",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload doc 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c72f90fe-8f5e-4b4c-874f-904a99ad1c92",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"document_id_1\", jsonData.id);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "multipart/form-data"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/document",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload doc 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c72f90fe-8f5e-4b4c-874f-904a99ad1c92",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"document_id_2\", jsonData.id);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "multipart/form-data"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/document",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload doc 3",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c72f90fe-8f5e-4b4c-874f-904a99ad1c92",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"document_id_3\", jsonData.id);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "multipart/form-data"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/document",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add field to doc 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "791be517-1903-4e91-91cf-d12c5ccd5e1b",
+								"exec": [
+									"pm.test(\"Status:200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n   \"fields\":[\n      {\n         \"x\":358,\n         \"y\":171,\n         \"width\":177,\n         \"height\":50,\n         \"type\":\"text\",\n         \"page_number\":0,\n         \"required\":true,\n         \"role\":\"Signer 1\",\n         \"custom_defined_option\":false,\n         \"name\":\"signature1\"      \n      \t}\n   ],\n   \"elements\":[\n\n   ],\n   \"client_timestamp\":{{$timestamp}}\n}"
+						},
+						"url": {
+							"raw": "{{url}}/document/{{document_id_1}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"{{document_id_1}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add field to doc 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "791be517-1903-4e91-91cf-d12c5ccd5e1b",
+								"exec": [
+									"pm.test(\"Status:200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n   \"fields\":[\n      {\n         \"x\":358,\n         \"y\":171,\n         \"width\":177,\n         \"height\":50,\n         \"type\":\"text\",\n         \"page_number\":0,\n         \"required\":true,\n         \"role\":\"Signer 1\",\n         \"custom_defined_option\":false,\n         \"name\":\"signature1\"\n        }\n   ],\n   \"elements\":[\n\n   ],\n   \"client_timestamp\":{{$timestamp}}\n}"
+						},
+						"url": {
+							"raw": "{{url}}/document/{{document_id_2}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"{{document_id_2}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add field to doc 3",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "791be517-1903-4e91-91cf-d12c5ccd5e1b",
+								"exec": [
+									"pm.test(\"Status:200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n   \"fields\":[\n      {\n         \"x\":358,\n         \"y\":171,\n         \"width\":177,\n         \"height\":50,\n         \"type\":\"text\",\n         \"page_number\":0,\n         \"required\":true,\n         \"role\":\"Signer 1\",\n         \"custom_defined_option\":false,\n         \"name\":\"signature1\"\n        }\n   ],\n   \"elements\":[\n\n   ],\n   \"client_timestamp\":{{$timestamp}}\n}"
+						},
+						"url": {
+							"raw": "{{url}}/document/{{document_id_3}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"{{document_id_3}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create doc group",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "86a34282-411c-42dd-adb0-f20607699406",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"group_id\", jsonData.id);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n   \"document_ids\":[\n      \"{{document_id_1}}\",\n      \"{{document_id_2}}\",\n      \"{{document_id_3}}\"\n   ],\n   \"group_name\":\"Group NameName123\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}/documentgroup",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"documentgroup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Group invite",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "3ad62b05-1efa-4320-99d9-b5e3810db5c2",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"group_invite\", jsonData.id);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n   \"invite_steps\":[\n      {\n         \"order\":1,\n         \"invite_emails\":[\n            {\n               \"email\":\"{{user1}}\",\n               \"subject\":\"custom subject\",\n               \"message\":\"custom message\",\n               \"expiration_days\":30,\n               \"reminder\":0\n            },\n            {\n               \"email\":\"{{user2}}\",\n               \"subject\":\"custom subject\",\n               \"message\":\"custom message\",\n               \"expiration_days\":30,\n               \"reminder\":0\n            }\n         ],\n         \"invite_actions\":[\n            {\n               \"email\":\"{{user1}}\",\n               \"role_name\":\"Signer 1\",\n               \"action\":\"sign\",\n               \"document_id\":\"{{document_id_1}}\",\n               \"allow_reassign\":\"0\",\n               \"decline_by_signature\":\"0\"\n            },\n            {\n               \"email\":\"{{user2}}\",\n               \"role_name\":\"Signer 1\",\n               \"action\":\"sign\",\n               \"document_id\":\"{{document_id_2}}\",\n               \"allow_reassign\":\"0\",\n               \"decline_by_signature\":\"0\"\n            }\n         ]\n      },\n       {\n         \"order\":2,\n         \"invite_emails\":[\n            {\n               \"email\":\"{{user3}}\",\n               \"subject\":\"custom subject\",\n               \"message\":\"custom message\",\n               \"expiration_days\":30,\n               \"reminder\":0\n            }\n         ],\n         \"invite_actions\":[\n            {\n               \"email\":\"{{user3}}\",\n               \"role_name\":\"Signer 1\",\n               \"action\":\"sign\",\n               \"document_id\":\"{{document_id_3}}\",\n               \"allow_reassign\":\"0\",\n               \"decline_by_signature\":\"0\"\n            }\n         ]\n      }\n   ],\n   \"completion_emails\":[\n\t\n   ]\n}"
+						},
+						"url": {
+							"raw": "{{url}}/documentgroup/{{group_id}}/groupinvite",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"documentgroup",
+								"{{group_id}}",
+								"groupinvite"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Group invite resend",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "3ad62b05-1efa-4320-99d9-b5e3810db5c2",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\":\"{{user1}}\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}/documentgroup/{{group_id}}/groupinvite/{{group_invite}}/resendinvites",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"documentgroup",
+								"{{group_id}}",
+								"groupinvite",
+								"{{group_invite}}",
+								"resendinvites"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get field id 1 signer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b4930fc1-68d3-41c5-9f7e-097d2102dde9",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"field_id_1\", jsonData.fields[0].field_id);",
+									"postman.setEnvironmentVariable(\"field_invite_id_1\", jsonData.field_invites[0].id);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/document/{{document_id_1}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"{{document_id_1}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get field id 2 signer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b4930fc1-68d3-41c5-9f7e-097d2102dde9",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"field_id_2\", jsonData.fields[0].field_id);",
+									"postman.setEnvironmentVariable(\"field_invite_id_2\", jsonData.field_invites[0].id);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/document/{{document_id_2}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"{{document_id_2}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get field id 3 signer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b4930fc1-68d3-41c5-9f7e-097d2102dde9",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"field_id_3\", jsonData.fields[0].field_id);",
+									"postman.setEnvironmentVariable(\"field_invite_id_3\", jsonData.field_invites[0].id);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/document/{{document_id_3}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"{{document_id_3}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get group invite step id's",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a17ac942-3a46-4570-b971-7c89a949ef4e",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"group_invite_step_id_1\", jsonData.invite.steps[0].id);",
+									"postman.setEnvironmentVariable(\"group_invite_step_id_2\", jsonData.invite.steps[1].id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{url}}/documentgroup/{{group_id}}/groupinvite/{{group_invite}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"documentgroup",
+								"{{group_id}}",
+								"groupinvite",
+								"{{group_invite}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cancel group invite",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n}"
+						},
+						"url": {
+							"raw": "{{url}}/documentgroup/{{group_id}}/groupinvite/{{group_invite}}/cancelinvite",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"documentgroup",
+								"{{group_id}}",
+								"groupinvite",
+								"{{group_invite}}",
+								"cancelinvite"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "05 Embedded Signning",
+			"item": [
+				{
+					"name": "Authentication",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "9cb3cdfb-1a89-4531-9c5b-7c3bb7714997",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"token\", jsonData.access_token);",
+									"",
+									"pm.test(\"Token is presented in response\", function(){ ",
+									"    pm.expect(pm.response.text()).to.include(\"access_token\"); ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic {{basic}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "{{user}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "text"
+								},
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/oauth2/token",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"oauth2",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload document",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c458ae77-a1fc-4dc8-87ec-11599401614a",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"document_id\", jsonData.id);",
+									"",
+									"pm.test(\"Document is uploaded\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"id\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "multipart/form-data"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/Users/ivan/Downloads/chat290568.pdf"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/document/",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add 2 fields",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "0e8ad7e5-fc54-4aad-9d56-ed6e644adcdb",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Status success\", function() {",
+									"    pm.expect(pm.response.text()).to.include(pm.environment.get(\"document_id\"));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"client_timestamp\": 1527859375,\n  \"fields\": [\n    {\n      \"page_number\": 0,\n      \"type\": \"text\",\n      \"name\": \"FieldName\",\n      \"role\": \"Signer 1\",\n      \"required\": true,\n      \"height\": 40,\n      \"width\": 50,\n      \"x\": 217,\n      \"y\": 32\n    },\n    {\n      \"page_number\": 0,\n      \"type\": \"text\",\n      \"name\": \"FieldName2\",\n      \"role\": \"Signer 2\",\n      \"required\": true,\n      \"height\": 40,\n      \"width\": 50,\n      \"x\": 260,\n      \"y\": 60\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{url}}/document/{{document_id}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"{{document_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get role ids",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "0d59bfc0-b553-45fe-b069-4d7890554965",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"var role_1_index;",
+									"var role_2_index;",
+									"for(var i = 0; i<jsonData.roles.length; ++i){",
+									"    var signerName = jsonData.roles[i].name;",
+									"    if(signerName === 'Signer 1'){",
+									"        role_1_index = i;",
+									"    }",
+									"}",
+									"for(var i = 0; i<jsonData.roles.length; ++i){",
+									"    var signerName = jsonData.roles[i].name;",
+									"    if(signerName === 'Signer 2'){",
+									"        role_2_index = i;",
+									"    }",
+									"}",
+									"",
+									"postman.setEnvironmentVariable(\"role_id_1\", jsonData.roles[role_1_index].unique_id);",
+									"postman.setEnvironmentVariable(\"role_id_2\", jsonData.roles[role_2_index].unique_id);",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/document/{{document_id}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"{{document_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Field Invite",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "2836d9d3-0969-4cba-b2ce-c78d519b0f50",
+								"exec": [
+									"pm.test(\"Status success\", function() {",
+									"    pm.expect(pm.response.text()).to.include(\"success\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n   \"document_id\":\"{{document_id}}\",\n   \"to\":[\n      {\n         \"email\":\"{{signer1}}\",\n         \"role\":\"Signer 1\",\n         \"role_id\":\"{{role_id_1}}\",\n         \"order\":1,\n         \"reassign\":\"1\",\n         \"decline_by_signature\":\"1\",\n         \"reminder\": 12,\n         \"expiration_days\":30,\n         \"subject\":\"Field invite Signer1\",\n         \"message\":\"Field invite Signer1\"\n      },\n      {\n         \"email\":\"{{signer2}}\",\n         \"role\":\"Signer 2\",\n         \"role_id\":\"{{role_id_2}}\",\n         \"order\":2,\n         \"reassign\":\"1\",\n         \"decline_by_signature\":\"1\",\n         \"reminder\": 12,\n         \"expiration_days\":30,\n         \"subject\":\"Field invite Signer1\",\n         \"message\":\"Field invite Signer1\"\n      }\n   ],\n   \"from\":\"{{user}}\",\n   \"email\":\"disabled\",\n   \"cc\":[\n   ],\n   \"subject\":\"Field invite with after_reminder\",\n   \"message\":\"New message!\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}/document/{{document_id}}/invite?email=disable",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"{{document_id}}",
+								"invite"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "disable"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create signer",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic {{basic}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\": \"{{signer}}\",\n\t\"password\": \"{{password1}}\",\n\t\"first_name\": \"\",\n\t\"last_name\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/user",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create signer's restricted scope token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f7859be4-c3eb-45b1-9201-cb73f7e1a68f",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"restricted_token\", jsonData.access_token);",
+									"",
+									"pm.test(\"Token is presented in response\", function(){ ",
+									"    pm.expect(pm.response.text()).to.include(\"access_token\"); ",
+									"});",
+									"",
+									"var document_id = postman.getEnvironmentVariable(\"document_id\");",
+									"var signingURL = \"https://eval.signnow.com/dispatch?route=fieldinvite&document_id=\" + document_id + \"&access_token=\" + jsonData.access_token;",
+									"postman.setEnvironmentVariable(\"full_signning_link\", signingURL);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic {{basic}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "username",
+									"value": "{{signer}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "text"
+								},
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								},
+								{
+									"key": "scope",
+									"value": "signer_limited_scope_token document/{{document_id}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/oauth2/token",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"oauth2",
+								"token"
+							]
+						},
+						"description": "After successful executing of this request **Embedded Signing Link** is saved as environment variabe ***signingURL***"
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Create user",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic {{basic}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\": \"{{username}}\",\n\t\"password\": \"{{password}}\",\n\t\"first_name\": \"{{name}}\",\n\t\"last_name\": \"{{last name}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/user",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"user"
+							]
+						},
+						"description": "Creates an account for a user   \n   \n   This endpoint consumes Basic authorization"
+					},
+					"response": []
+				},
+				{
+					"name": "Get user info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/user",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"user"
+							]
+						},
+						"description": "Returns a user resource"
+					},
+					"response": []
+				},
+				{
+					"name": "Change user details",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"first_name\": \"{{updated_name}}\",\n\t\"last_name\": \"{{updated_last_name}}\",\n\t\"password\": \"{{updated_password}}\",\n\t\"old_password\": \"{{old_pass}}\",\n\t\"logout_all\": \"true\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/user",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"user"
+							]
+						},
+						"description": "Updates user informaition i.e. first name, last name"
+					},
+					"response": []
+				},
+				{
+					"name": "Send verification email",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Basic {{basic}}"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\": \"{{user}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/user/verifyemail",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"user",
+								"verifyemail"
+							]
+						},
+						"description": "Sends verification email to a user"
+					},
+					"response": []
+				},
+				{
+					"name": "Verify email",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Basic {{basic}}"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\": \"{{user}}\",\n\t\"verification_token\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/user/email/verify",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"user",
+								"email",
+								"verify"
+							]
+						},
+						"description": "Verifies user’s email address using token from verification email"
+					},
+					"response": []
+				},
+				{
+					"name": "Reset password",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Basic {{basic}}"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/javascript"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\": \"{{user}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "javascript"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/user/forgotpassword",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"user",
+								"forgotpassword"
+							]
+						},
+						"description": "Sends password reset link via email"
+					},
+					"response": []
+				},
+				{
+					"name": "Get modified documents",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/user/documentsv2",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"user",
+								"documentsv2"
+							]
+						},
+						"description": "Returns an array of user’s documents that were modified (added fields, texts, signatures, etc.)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get user documents",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/user/documents",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"user",
+								"documents"
+							]
+						},
+						"description": "Returns information of user’s documents that were not modified yet."
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Oauth2",
+			"item": [
+				{
+					"name": "Generate access token",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Basic {{basic}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "username",
+									"value": "{{user}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "text"
+								},
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								},
+								{
+									"key": "scope",
+									"value": "*",
+									"type": "text"
+								},
+								{
+									"key": "expiration_time",
+									"value": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/oauth2/token",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"oauth2",
+								"token"
+							]
+						},
+						"description": "Returns an `access_token`, its' type, scope, expiration time, and `refresh_token` for a user\n   \n   By deafult token expires in 30 days\n   \n   Check out other supported grant types [here](https://docs.signnow.com/authentication)."
+					},
+					"response": []
+				},
+				{
+					"name": "Verify access token",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/oauth2/token",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"oauth2",
+								"token"
+							]
+						},
+						"description": "Verify an access token for a user"
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Document",
+			"item": [
+				{
+					"name": "Get document",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/document/{{document_id}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"{{document_id}}"
+							]
+						},
+						"description": "This endpoint returns details of specific document"
+					},
+					"response": []
+				},
+				{
+					"name": "Edit document",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"document_name\": \"new_name\",\n  \"fields\":[\n    {\n      \"x\":305,\n      \"y\":18,\n      \"width\":122,\n      \"height\":34,\n      \"page_number\":0,\n      \"role\":\"Signer 1\",\n      \"required\":true,\n      \"type\":\"signature\"\n    },\n    {\n      \"x\":307,\n      \"y\":67,\n      \"width\":60,\n      \"height\":12,\n      \"page_number\":0,\n      \"label\":\"a sample label\",\n      \"role\":\"Signer 1\",\n      \"required\":true,\n      \"type\":\"text\"\n    }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/document/{{document_id}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"{{document_id}}"
+							]
+						},
+						"description": "Updates a document by adding/overwriting fields or elements (texts, checks, signatures, hyperlinks, attachments)\n   \n   More details can be found [here](https://docs.signnow.com/reference/oas/document/putdocumentdocumentid)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete document",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/document/{{document_id}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"{{document_id}}"
+							]
+						},
+						"description": "Deletes a document from user’s account"
+					},
+					"response": []
+				},
+				{
+					"name": "Upload document",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/document",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document"
+							]
+						},
+						"description": "Uploads a file to user’s account and returns unique id of the uploaded document.   \n\nAccepts .doc, .docx, .pdf, .xls, .xlsx, .ppt, .pptx and .png file types."
+					},
+					"response": []
+				},
+				{
+					"name": "Upload document with tags",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "Tags",
+									"value": "[\n   {\n      \"tag_name\":\"tag 1\",\n      \"role\":\"Signer 1\",\n      \"label\":\"name\",\n      \"required\":true,\n      \"type\":\"text\",\n      \"height\":15,\n      \"width\":100\n   }\n]",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/document/fieldextract",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"fieldextract"
+							]
+						},
+						"description": "Uploads a file that contains [SignNow Text Tags](https://docs.signnow.com/docs/text-tags) . Only .doc, .docx, and .pdf are supported"
+					},
+					"response": []
+				},
+				{
+					"name": "Download document",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/document/{{document_id}}/download?type=collapsed",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"{{document_id}}",
+								"download"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "collapsed"
+								}
+							]
+						},
+						"description": "Downloads a document"
+					},
+					"response": []
+				},
+				{
+					"name": "Move document",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"folder_id\": \"{{folder_id}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/document/{{document_id}}/move",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"{{document_id}}",
+								"move"
+							]
+						},
+						"description": "Moves a document into specified folder"
+					},
+					"response": []
+				},
+				{
+					"name": "Send an invite to sign",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"document_id\": \"{{document_id}}\",\n  \"to\": [\n    {\n      \"email\": \"signer@signnow.com\",\n      \"role_id\": \"488d73a3efab032511f144af3a2572a8aae20162\",\n      \"role\": \"Signer 1\",\n      \"order\": 1,\n      \"reassign\": \"0\",\n      \"decline_by_signature\": \"0\",\n      \"reminder\": 0,\n      \"expiration_days\": 30,\n      \"authentication_type\": \"password\",\n      \"password\": \"123456\",\n      \"subject\": \"personalized subject\",\n      \"message\": \"personalized message\"\n    },\n    {\n      \"email\": \"signer2@signnow.com\",\n      \"role_id\": \"\",\n      \"role\": \"Signer 2\",\n      \"order\": 2,\n      \"reassign\": \"1\",\n      \"decline_by_signature\": \"1\",\n      \"reminder\": 0,\n      \"expiration_days\": 30\n    }\n  ],\n  \"from\": \"sender@email.com\",\n  \"cc\": [\n    \"cc_email@gmail.com\",\n    \"abnother_cc@gmail.com\"\n  ],\n  \"subject\": \"generic subject\",\n  \"message\": \"generic message\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/document/{{document_id}}/invite",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"{{document_id}}",
+								"invite"
+							]
+						},
+						"description": "Create and sends an invite to sign a document. \n\nThere are 2 types of signature invite:\n1. Free form invite - for document without fillable fields\n2. Role-based invite - document has at least one field These 2 types of invite require different payloads"
+					},
+					"response": []
+				},
+				{
+					"name": "Cancel invite",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/document/{{document_id}}/fieldinvitecancel",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"{{document_id}}",
+								"fieldinvitecancel"
+							]
+						},
+						"description": "Cancels an invite to sign a document."
+					},
+					"response": []
+				},
+				{
+					"name": "Get document download link",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/document/{{document_id}}/download/link",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"{{document_id}}",
+								"download",
+								"link"
+							]
+						},
+						"description": "Returns a one-time use URL for anyone to download the document as a PDF."
+					},
+					"response": []
+				},
+				{
+					"name": "Add custom event",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/document/{{document_id}}/custom_history_event",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"{{document_id}}",
+								"custom_history_event"
+							]
+						},
+						"description": "Allows developers to add their custom events to the audit log. \n\nFor example, if you are using a single SignNow account to make API calls but authenticating multiple people, use this call to add a record to the audit log for that specific document that references the authentication method."
+					},
+					"response": []
+				},
+				{
+					"name": "Merge documents",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"the merged doc\",\n  \"document_ids\": [\n    \"{{document_id}}\",\n    \"{{document2_id}}\"\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/document/merge",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"merge"
+							]
+						},
+						"description": "Merges existing documents into one."
+					},
+					"response": []
+				},
+				{
+					"name": "Get document history",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/document/{{document_id}}/historyfull",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"{{document_id}}",
+								"historyfull"
+							]
+						},
+						"description": "Returns the history of a document."
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Template",
+			"item": [
+				{
+					"name": "Create template",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c91f5a17-ff68-4765-834d-b659b1357519",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"template_id\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"document_id\": \"{{document_id}}\",\n\t\"document_name\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/template",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"template"
+							]
+						},
+						"description": "Creates a template by flattening an existing document."
+					},
+					"response": []
+				},
+				{
+					"name": "Get document out of template",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/template/{{template_id}}/copy",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"template",
+								"{{template_id}}",
+								"copy"
+							]
+						},
+						"description": "Creates a new document copy out of template. If a name is not supplied than it will default to the original template name."
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Document Group",
+			"item": [
+				{
+					"name": "Create document group",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"document_ids\":\n  [\n    \"{{document_id}}\",\n    \"{{document1_id}}\"\n  ],\n  \"group_name\": \"Document Group 1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/documentgroup",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"documentgroup"
+							]
+						},
+						"description": "Creates a document group from a list of document ids\n\nAll documents:\n\nMust be owned by the person creating the document group.\nCannot be templates.\nCannot already be a part of another document group (delete document group first to add them).\nAt least one of the documents must have fields."
+					},
+					"response": []
+				},
+				{
+					"name": "Get document group",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/documentgroup/{{document_group_id}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"documentgroup",
+								"{{document_group_id}}"
+							]
+						},
+						"description": "Returns document and roles information for documents in a document group. The invite_id property is null if there is no group invite for the group yet."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete document group",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/documentgroup/{{document_group_id}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"documentgroup",
+								"{{document_group_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get document groups",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/user/documentgroups",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"user",
+								"documentgroups"
+							]
+						},
+						"description": "Returns back all document groups the user owns.\n\nThe call is paginated by last_updated, so offset and limit query parameters are required:\n\n1. Limit must be greater than 0 but less than or equal to 50.\n2. Offset must be 0 or greater."
+					},
+					"response": []
+				},
+				{
+					"name": "Invite to sign document group",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"invite_steps\": [\n    {\n      \"order\": 1,\n      \"invite_emails\": [\n        {\n          \"email\": \"janedoe@barracuda.com\",\n          \"disabled\": 0,\n          \"subject\": \"The subject step1\",\n          \"message\": \"The message for step1\"\n        },\n        {\n          \"email\": \"test@mailinator.com\",\n          \"subject\": \"subject step 1\",\n          \"message\": \"message step 1\"\n        },\n        {\n          \"email\": \" bob@SignNow.com \",\n          \"subject\": \"@signnow subject step 1\",\n          \"message\": \"@signnow message step 1\"\n        }\n      ],\n      \"invite_actions\": [\n        {\n          \"email\": \" janedoe@barracuda.com \",\n          \"role_name\": \"role6\",\n          \"action\": \"sign\",\n          \"document_id\": \"dd63da6fbe213863626a61d36b0c13ce61e4a2be\",\n          \"allow_reassign\": 0,\n          \"authentication\": {\n            \"type\": \"password\",\n            \"value\": \"abc123\"\n          }\n        },\n        {\n          \"email\": \" test@mailinator.com \",\n          \"role_name\": \"role2\",\n          \"action\": \"sign\",\n          \"document_id\": \"cddc2f79a3873af02ebc1d1ab0d45b2a1a3a2e7b\",\n          \"allow_reassign\": 0\n        }\n      ]\n    },\n    {\n      \"order\": 2,\n      \"invite_emails\": [\n        {\n          \"email\": \" janedoe@barracuda.com \",\n          \"disabled\": 0,\n          \"subject\": \"The subject for step2\",\n          \"message\": \"The message for step2\"\n        },\n        {\n          \"email\": \" test@mailinator.com \",\n          \"subject\": \"subject step 2\",\n          \"message\": \" message step 2\"\n        }\n      ],\n      \"invite_actions\": [\n        {\n          \"email\": \" janedoe@barracuda.com \",\n          \"role_name\": \"role4\",\n          \"action\": \"view\",\n          \"document_id\": \"dd63da6fbe213863626a61d36b0c13ce61e4a2be\",\n          \"allow_reassign\": 0\n        },\n        {\n          \"email\": \" test@mailinator.com \",\n          \"role_name\": \"role5\",\n          \"action\": \"view\",\n          \"document_id\": \"dd63da6fbe213863626a61d36b0c13ce61e4a2be\",\n          \"allow_reassign\": 0\n        }\n      ]\n    },\n    {\n      \"order\": 3,\n      \"invite_emails\": [\n        {\n          \"email\": \" janedoe@barracuda.com \",\n          \"disabled\": 0,\n          \"subject\": \"The subject for step3\",\n          \"message\": \"The message for step3\"\n        },\n        {\n          \"email\": \" test@mailinator.com \",\n          \"subject\": \"subject step 3\",\n          \"message\": \"message step 3\"\n        }\n      ],\n      \"invite_actions\": [\n        {\n          \"email\": \" janedoe@barracuda.com \",\n          \"role_name\": \"role1\",\n          \"action\": \"sign\",\n          \"document_id\": \"cddc2f79a3873af02ebc1d1ab0d45b2a1a3a2e7b\",\n          \"allow_reassign\": 0\n        },\n        {\n          \"email\": \" test@mailinator.com \",\n          \"role_name\": \"role3\",\n          \"action\": \"sign\",\n          \"document_id\": \"cddc2f79a3873af02ebc1d1ab0d45b2a1a3a2e7b\",\n          \"allow_reassign\": 0\n        }\n      ]\n    }\n  ],\n  \"completion_emails\": [\n    {\n      \"email\": \" janedoe@barracuda.com \",\n      \"disabled\": 0,\n      \"subject\": \"The subject COMPLETE \",\n      \"message\": \"The COMPLETE message\"\n    },\n    {\n      \"email\": \" test@mailinator.com \",\n      \"subject\": \"COMPLETE subject \",\n      \"message\": \"COMPLETE message\"\n    },\n    {\n      \"email\": \"bob@SignNow.com\",\n      \"subject\": \"COMPLETED subject \",\n      \"message\": \" message COMPLETED\",\n      \"disabled\": 0\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/documentgroup/{{document_group_id}}/groupinvite",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"documentgroup",
+								"{{document_group_id}}",
+								"groupinvite"
+							]
+						},
+						"description": "Creates a multi-step invite for a document group.\n\nEach invite step consists of <invite_email> objects that set the email message or can disable emails all together for specific user. Invite steps also are made of the <invite_action> objects that need to be completed before the step is considered complete. Once all the invite_actions are completed, the next step’s invite emails are sent out. When all steps have been completed, completion emails are sent out."
+					},
+					"response": []
+				},
+				{
+					"name": "Get document group invite",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "/document/{{document_group_id}}/groupinvite/{{invite_id}}",
+							"path": [
+								"document",
+								"{{document_group_id}}",
+								"groupinvite",
+								"{{invite_id}}"
+							]
+						},
+						"description": "Returns invite action information for a group invite, including the status of each step and action.\n\nHere is the list of possible invite action statuses:\n1. ‘created’: invite or action has been created but is not waiting to be signed\n2. ‘pending’: emails have been sent out for this invite action or step and are waiting to be viewed or signed\n3. ‘fulfilled’: actions and steps that have been finished by singing or viewing"
+					},
+					"response": []
+				},
+				{
+					"name": "Cancel document group invite",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/documentgroup/{{document_group_id}}/groupinvite/{{invite_id}}/cancelinvite",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"documentgroup",
+								"{{document_group_id}}",
+								"groupinvite",
+								"{{invite_id}}",
+								"cancelinvite"
+							]
+						},
+						"description": "Cancels a group invite. \n\nAll documents will be unshared with invitees. Any signatures that occurred before canceling will remain on the documents."
+					},
+					"response": []
+				},
+				{
+					"name": "Get pending group invites",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/documentgroup/{{document_group_id}}/groupinvite/{{invte_id}}/pendinginvites",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"documentgroup",
+								"{{document_group_id}}",
+								"groupinvite",
+								"{{invte_id}}",
+								"pendinginvites"
+							]
+						},
+						"description": "Returns all pending invite information as well as invites already signed for a group invite for the user that makes the call. \n\nIf the user making the call is the document owner, it will return pending invites for that user and ALL actions that have already been fulfilled."
+					},
+					"response": []
+				},
+				{
+					"name": "Resend document group invite",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"test@email.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/documentgroup/{{document_group_id}}/groupinvite/{{invite_id}}/resendinvites",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"documentgroup",
+								"{{document_group_id}}",
+								"groupinvite",
+								"{{invite_id}}",
+								"resendinvites"
+							]
+						},
+						"description": "Resends invite emails to those with pending invites for the group invite. \n\nResend can also be used to resend invites to a single user if the user’s email is specified in the POST JSON body."
+					},
+					"response": []
+				},
+				{
+					"name": "Update document group invite",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/documentgroup/{{document_group_id}}/groupinvite/{{invite_id}}/invitestep/{{step_id}}/update",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"documentgroup",
+								"{{document_group_id}}",
+								"groupinvite",
+								"{{invite_id}}",
+								"invitestep",
+								"{{step_id}}",
+								"update"
+							]
+						},
+						"description": "Either replaces invitees for a particular step or updates the invite attributes for a user at a particular step"
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Signing Link",
+			"item": [
+				{
+					"name": "Create signing link",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"document_id\": \"{{document_id}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/link",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"link"
+							]
+						},
+						"description": "Creates a Signing Link for a specific document."
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Webhooks",
+			"item": [
+				{
+					"name": "Create event subscription",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"event\": \"\",\n  \"entity_id\": \"\",\n  \"action\": \"callback\",\n  \"attributes\": {\n    \"callback\": \" \",\n    \"use_tls_12\": true,\n    \"integration_id\": \"Unique ID Integration System\",\n    \"docid_queryparam\": true,\n    \"headers\": {\n      \"string_head\": \"test\",\n      \"int_head\": 12,\n      \"bool_head\": false,\n      \"float_head\": 12.24\n    }\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/v2/events",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v2",
+								"events"
+							]
+						},
+						"description": "Allows to subscribe an external service(callback_url) to a specific event of user or document.\n\nCheck [this article](https://docs.signnow.com/webhooks/subscriptions) for more details."
+					},
+					"response": []
+				},
+				{
+					"name": "Get event subscriptions",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Basic {{basic}}"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/api/v2/events",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v2",
+								"events"
+							]
+						},
+						"description": "Gets information about all subscriptions to events made with a specific application"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete event subscription",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v2/events/{{event_subscription_id}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v2",
+								"events",
+								"{{event_subscription_id}}"
+							]
+						},
+						"description": "Unsubscribes an external service (callback_url) from specific events of user or document"
+					},
+					"response": []
+				},
+				{
+					"name": "Update event subscription",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"event\": \"document.fieldinvite.sent\",\n  \"entity_id\": \"63fde884ad755149ff213563de654f9a61a1884c\",\n  \"action\": \"callback\",\n  \"attributes\": {\n    \"callback\": \"https://enlvww20vv7m.x.pipedream.net/\",\n    \"use_tls_12\": true,\n    \"integration_id\": \"b98fc00add6b43a606bc527c81eee741bf16a7d8\",\n    \"docid_queryparam\": true,\n    \"headers\": {\n      \"string_head\": \"test\",\n      \"int_head\": 12,\n      \"bool_head\": false,\n      \"float_head\": 12.24\n    }\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/v2/events/{{event_subscription_id}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v2",
+								"events",
+								"{{event_subscription_id}}"
+							]
+						},
+						"description": "Allows changing an existing event subscription"
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Folder",
+			"item": [
+				{
+					"name": "Creaate folder",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "30c9bc56-e101-456a-a581-878fb048addf",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"folder_id\", jsonData.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"test folder\",\n\t\"parent_id\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/user/folder",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"user",
+								"folder"
+							]
+						},
+						"description": "Creates a folder for the user."
+					},
+					"response": []
+				},
+				{
+					"name": "Get all folders",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/user/folder",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"user",
+								"folder"
+							]
+						},
+						"description": "Returns all folders of a user."
+					},
+					"response": []
+				},
+				{
+					"name": "Get folder by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/folder/{{folder_id}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"folder",
+								"{{folder_id}}"
+							]
+						},
+						"description": "Returns all details of a specific folder including an array of all documents in that folder.\n\nYou can adjust the response produced by this endpoint using the following query parameters:\n\n**filters=signing-status&filter-values** - allows to show documents with specific status\n<br>allowed values: signed, pending, waiting-for-me, waiting-for-others\n\n**filters=documents-created&filter-values** - shows documents that were created started from specific date (note: this filter is not applicable for Templates)\n<br>allowed values: Unix timestamp\n\n**filters=documents-updated&filter-values** - shows documents that were updated started from specific date (note: this filter is not applicable for Templates)\n<br>allowed values: Unix timestamp\n\n**sortby=created&order** - sorts documents by creation date in descending or ascending order\n<br>allowed values: desc, asc\n\n**sortby=updated&order** - sorts documents by update date\n<br>allowed values: desc, asc\n\n**limit** - displays specified number of documents; Max limit is 100. It means that if value of \"limit\" parameter exceeds 100, response is automatically limited to 100 documents.\n<br>allowed values: integer\n\n**offset** - displays documents from specified position\n<br>allowed values: integer\n\n**subfolder-data** - defines whether sub-folders of the given folder are displayed in the response. <br>allowed values: 1, 0 (i.e. subfolder-data=1)\n\n**with_team_documents** - allows to display \"Team Documents\" folders.\n<br>allowed values: true, false (i.e. with_team_documents=true)\n\n**exclude_documents_relations** - allows to display short list of document info and increases maximum limit from 100 to 500 documents per page.\n<br>allowed values: true, false (i.e. exclude_documents_relations=false)\n\nThe short list of document info is:\n\n```\n{\n\"id\": \" \",\n\"user_id\": \" \",\n\"document_name\": \" \",\n\"page_count\": \" \",\n\"created\": \" \",\n\"updated\": \" \",\n\"original_filename\": \" \"\n}\n```\n**include_documents_subfolders** - allows to hide sub-folders and display all documents from those sub-folders in the parent folder. Parameter works only for \"Documents\" and \"Template\" folder and their children. Default value - true\n<br>allowed values: true, false\n\n\n\n**exclude_documents_relations** - when this param is true, for documents in folder won’t include relations such as fields, signatures, etc, only the main info will be displayed.\n<br>allowed values: true, false"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete folder",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/user/folder/{{folder_id}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"user",
+								"folder",
+								"{{folder_id}}"
+							]
+						},
+						"description": "Deletes a folder."
+					},
+					"response": []
+				},
+				{
+					"name": "Rename folder",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/user/folder/{{folder_id}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"user",
+								"folder",
+								"{{folder_id}}"
+							]
+						},
+						"description": "Renames a folder."
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Smart Fields",
+			"item": [
+				{
+					"name": "Prefill smart fields",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"data\": [\n    {\n      \"field_name1\": \"value1\"\n    },\n    {\n      \"field_name2\": \"value2\"\n    }\n  ],\n  \"client_timestamp\": \"UTC time stamp\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/document/{{document_id}}/integration/object/smartfields",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"document",
+								"{{document_id}}",
+								"integration",
+								"object",
+								"smartfields"
+							]
+						},
+						"description": "Prefills smart fields.\n\nYou can add Smart Fields to a template though web UI only. <br>\n**Note:** names of Smart Fields are case sensetive."
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "86e30f2e-d28c-4820-b65f-c63705f6245e",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "fb2c9b76-407b-4c24-a31f-2489b4428250",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"protocolProfileBehavior": {}
+}
