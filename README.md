@@ -80,4 +80,3 @@ If you have questions about the SignNow API, please visit https://help.signnow.c
 
 ## <a name="license"></a>License
 
-This Postman collection is distributed under the MIT License, see [LICENSE](https://github.com/signnow/SignNow.NET/blob/develop/LICENSE) for more information.
