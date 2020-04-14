@@ -31,7 +31,7 @@ Sandbox account, Basic Authorization token, Postman application
 
 * Clone or download the collection to your computer
 * Import the following files to Postman: `SignNow API.postman_collection.json`; `signNow Sandbox Env.postman_environment.json`
-* Go to yout Sandbox account and copy the Basic Authorization token from the [API Dashboard](https://docs.signnow.com/dashboard);
+* Go to your Sandbox account and copy the Basic Authorization token from the [API Dashboard](https://docs.signnow.com/dashboard);
 * Add your Sandbox login and password and your Basic Authorization token to the environment in Postman
 
 The base URL is https://api-eval.signnow.com .
