@@ -70,7 +70,7 @@ Read about the available SignNow features in [SignNow API Docs](https://docs.sig
 
 **Folder**: Create a folder, Get all folders, Get a folder by ID, Delete a folder, Rename a folder
 
-**Smart fields**: Prefill Smart field
+**Smart fields**: Prefill a Smart field
 
 
 ## <a name="api-contact-information"></a>API Contact Information
