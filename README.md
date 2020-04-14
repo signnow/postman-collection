@@ -1,5 +1,5 @@
 # signNow API Postman Collection
-[![License](https://img.shields.io/github/license/signnow/SignNow.NET?style=flat-square)](LICENSE)
+[![License](https://img.shields.io/github/license/signnow/postman-collection?style=flat-square)](LICENSE)
 
 ## About signNow REST API Collection
 
@@ -41,43 +41,44 @@ The base URL is https://api-eval.signnow.com .
 Read about the available SignNow features in [SignNow API Docs](https://docs.signnow.com/).
 
 ## <a name="features"></a>Features
-    **Folder 00**: Invite to sign the document with fields (role-based invite)
+**Folder 00**: Invite to sign the document with fields (role-based invite)
 
-    **Folder 01**: Invite to sign the document without fields (freeform invite)
+**Folder 01**: Invite to sign the document without fields (freeform invite)
 
-    **Folder 02**: Create a single-use link to the document for signature
+**Folder 02**: Create a single-use link to the document for signature
 
-    **Folder 03**: Bulk invite
+**Folder 03**: Bulk invite
 
-    **Folder 04**: Document Group Invite
+**Folder 04**: Document Group Invite
 
-    **Folder 05**: Embedded Signing
+**Folder 05**: Embedded Signing
 
-    **Users**:  Create a user, Get user's info, Change user's details, Send a verification email, Verify email, Reset password, Get modified documents, Get user documents
+**Users**:  Create a user, Get user's info, Change user's details, Send a verification email, Verify email, Reset password, Get modified documents, Get user documents
 
-    **OAuth**: Generate an access token, Verify an access token
+**OAuth**: Generate an access token, Verify an access token
 
-    **Document**: Get document, Edit document, Delete document, Upload document, Upload document with tags, Download document, Move document, Send an invite to sign, Cancel invite to sign, Get document download link, Add custom event, Merge documents, Get document history
+**Document**: Get document, Edit document, Delete document, Upload document, Upload document with tags, Download document, Move document, Send an invite to sign, Cancel invite to sign, Get document download link, Add custom event, Merge documents, Get document history
 
-    **Template**: Create a template, Get document out of a template
 
-    **Document Group**: Create document group, Get document group,  Delete document group, Get document groups, Invite to sign document group, Get document group invite, Cancel document group invite, Get pending group invites, Resend document group invite, Update document group invite
+**Template**: Create a template, Get document out of a template
 
-    **Signing link**: Create a signing link
+**Document Group**: Create document group, Get document group,  Delete document group, Get document groups, Invite to sign document group, Get document group invite, Cancel document group invite, Get pending group invites, Resend document group invite, Update document group invite
 
-    **Webhooks**: Create an event subscription, Get event subscriptions, Delete an event subscription, Update an event subscription
+**Signing link**: Create a signing link
 
-    **Folder**: Create a folder, Get all folders, Get a folder by ID, Delete a folder, Rename a folder
+**Webhooks**: Create an event subscription, Get event subscriptions, Delete an event subscription, Update an event subscription
 
-    **Smart fields**: Prefill Smart field
+**Folder**: Create a folder, Get all folders, Get a folder by ID, Delete a folder, Rename a folder
+
+**Smart fields**: Prefill Smart field
 
 
 ## <a name="api-contact-information"></a>API Contact Information
-If you have questions about the SignNow API, please visit https://help.signnow.com/docs or email api@signnow.com.<br>
-**Support**: To contact SignNow support, please email support@signnow.com or api@signnow.com.<br>
+If you have questions about the signNow API, please visit https://help.signnow.com/docs or email api@signnow.com.<br>
+**Support**: To contact signNow support, please email support@signnow.com or api@signnow.com.<br>
 **Sales**: For pricing information, please call (800) 831-2050, email sales@signnow.com or visit https://www.signnow.com/contact.
 
 
 ## <a name="license"></a>License
 
-This Postman collection is distributed under the MIT License, see [LICENSE](https://github.com/signnow/SignNow.NET/blob/develop/LICENSE) for more information.
+This Postman collection is distributed under the MIT License, see [LICENSE](https://github.com/signnow/postman-collection/blob/master/LICENSE) for more information.
