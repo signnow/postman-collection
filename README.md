@@ -1,5 +1,5 @@
 # signNow API Postman Collection
-![License](https://img.shields.io/github/license/signnow/postman-collection?style=flat-square)[](LICENSE)
+[ ![License](https://img.shields.io/github/license/signnow/postman-collection?style=flat-square)](LICENSE)
 
 ## About signNow REST API Collection
 
